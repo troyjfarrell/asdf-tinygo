@@ -2,17 +2,16 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for <YOUR TOOL>.
-GH_REPO="<TOOL REPO>"
-TOOL_NAME="<YOUR TOOL>"
-TOOL_TEST="<TOOL CHECK>"
+GH_REPO="https://github.com/tinygo-org/tinygo"
+TOOL_NAME="tinygo"
+TOOL_TEST="tinygo version"
 
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
 	exit 1
 }
 
-curl_opts=(-fsSL)
+curl_opts=(--proto '=https' --tlsv1.2 -fsSL)
 
 # NOTE: You might want to remove this if <YOUR TOOL> is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
@@ -31,18 +30,32 @@ list_github_tags() {
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if <YOUR TOOL> has other means of determining installable versions.
 	list_github_tags
 }
 
 download_release() {
-	local version filename url
+	local version kernel arch filename url
 	version="$1"
-	filename="$2"
+	kernel="$2"
+	arch="$3"
+	filename="$4"
 
-	# TODO: Adapt the release URL convention for <YOUR TOOL>
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	if [ "$kernel" = "Linux" ]; then
+		kernel="linux"
+	fi
+	if [ "$arch" = "x86_64" ]; then
+		arch="arm64"
+	fi
+
+	# Supported targets:
+	# darwin-amd64
+	# darwin-arm64
+	# linux-amd64
+	# linux-arm
+	# linux-arm64
+	#
+	# TinyGo builds for Windows, but I don't have a Windows system for testing.
+	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}${version}.${kernel}-${arch}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -51,24 +64,24 @@ download_release() {
 install_version() {
 	local install_type="$1"
 	local version="$2"
-	local install_path="${3%/bin}/bin"
+	local install_root_path="${3%/bin}"
+	local install_bin_path="${3%/bin}/bin"
 
 	if [ "$install_type" != "version" ]; then
 		fail "asdf-$TOOL_NAME supports release installs only"
 	fi
 
 	(
-		mkdir -p "$install_path"
-		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+		mkdir -p "$install_bin_path"
+		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_root_path"
 
-		# TODO: Assert <YOUR TOOL> executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
-		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
+		test -x "$install_bin_path/$tool_cmd" || fail "Expected $install_bin_path/$tool_cmd to be executable."
 
 		echo "$TOOL_NAME $version installation was successful!"
 	) || (
-		rm -rf "$install_path"
+		rm -rf "$install_root_path"
 		fail "An error occurred while installing $TOOL_NAME $version."
 	)
 }
