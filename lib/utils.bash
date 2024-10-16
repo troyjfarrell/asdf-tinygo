@@ -62,7 +62,8 @@ download_release() {
 # file (SHA256SUMS) of known hashes.  Consider it the trust-on-first-use of
 # downloading.
 check_sha256() {
-	local file_path="$1"
+	local plugin_dir="$1"
+	local file_path="$2"
 	local file_dir
 	local file_name
 	local sha256sum_path
@@ -73,7 +74,7 @@ check_sha256() {
 	file_dir=$(dirname "${file_path}")
 	file_name=$(basename "${file_path}")
 	sha256sum_path=$(mktemp)
-	grep "${file_name}" SHA256SUMS >"${sha256sum_path}"
+	grep "${file_name}" "${plugin_dir}/SHA256SUMS" >"${sha256sum_path}"
 	line_count=$(wc -l "${sha256sum_path}" | cut -d\  -f1)
 	if [ "$line_count" -ne 1 ]; then
 		rm "${sha256sum_path}"
