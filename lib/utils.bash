@@ -34,18 +34,10 @@ list_all_versions() {
 }
 
 download_release() {
-	local version kernel arch filename url
-	version="$1"
-	kernel="$2"
-	arch="$3"
-	filename="$4"
-
-	if [ "$kernel" = "Linux" ]; then
-		kernel="linux"
-	fi
-	if [ "$arch" = "x86_64" ]; then
-		arch="arm64"
-	fi
+	local version="$1"
+	local kernel="$2"
+	local arch="$3"
+	local filename="$4"
 
 	# Supported targets:
 	# darwin-amd64
@@ -55,8 +47,12 @@ download_release() {
 	# linux-arm64
 	#
 	# TinyGo builds for Windows, but I don't have a Windows system for testing.
-	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}${version}.${kernel}-${arch}.tar.gz"
-
+	kernel=$(echo "${kernel}" | tr '[:upper:]' '[:lower:]')
+	if [ "$arch" = "x86_64" ]; then
+		arch="amd64"
+	fi
+	local download_filename="${TOOL_NAME}${version}.${kernel}-${arch}.tar.gz"
+	local url="$GH_REPO/releases/download/v${version}/${download_filename}"
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
 }

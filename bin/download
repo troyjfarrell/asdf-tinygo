@@ -10,11 +10,8 @@ source "${plugin_dir}/lib/utils.bash"
 
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
-kernel=$(uname -s)
+kernel=$(uname -s | tr '[:upper:]' '[:lower:]')
 arch=$(uname -m)
-if [ "$kernel" = "Linux" ]; then
-	kernel="linux"
-fi
 if [ "$arch" = "x86_64" ]; then
 	arch="amd64"
 fi
