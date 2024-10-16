@@ -57,6 +57,43 @@ download_release() {
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
 }
 
+# As of 2024-10-16, TinyGo does not publish hashes for their releases, nor do
+# they sign them.  The check_sha256 method checks downloaded files against a
+# file (SHA256SUMS) of known hashes.  Consider it the trust-on-first-use of
+# downloading.
+check_sha256() {
+	local file_path="$1"
+	local file_dir
+	local file_name
+	local sha256sum_path
+	local line_count
+	local pwd
+
+	# Build an SHA256SUMS file for the one file we have downloaded.
+	file_dir=$(dirname "${file_path}")
+	file_name=$(basename "${file_path}")
+	sha256sum_path=$(mktemp)
+	grep "${file_name}" SHA256SUMS >"${sha256sum_path}"
+	line_count=$(wc -l "${sha256sum_path}" | cut -d\  -f1)
+	if [ "$line_count" -ne 1 ]; then
+		rm "${sha256sum_path}"
+		fail "Unable to find exactly one SHA-256 value for file ${file_name}"
+	fi
+
+	# Check the SHA-256 value using the sha256sum command.
+	pwd=$(pwd)
+	cd "${file_dir}"
+	sha256sum --check "${sha256sum_path}"
+	local sha256sum_rc=$?
+	cd "${pwd}"
+
+	if [ $sha256sum_rc -ne 0 ]; then
+		rm "${sha256sum_path}"
+		fail "Failed to verify the SHA-256 value for the file ${file_name}"
+	fi
+	rm "${sha256sum_path}"
+}
+
 install_version() {
 	local install_type="$1"
 	local version="$2"
