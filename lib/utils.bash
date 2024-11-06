@@ -75,20 +75,27 @@ check_sha256() {
 	file_name=$(basename "${file_path}")
 	sha256sum_path=$(mktemp)
 	grep "${file_name}" "${plugin_dir}/SHA256SUMS" >"${sha256sum_path}"
-	line_count=$(wc -l "${sha256sum_path}" | cut -d\  -f1)
+	line_count=$(wc -l "${sha256sum_path}" | awk '{print $1}')
 	if [ "$line_count" -ne 1 ]; then
 		rm "${sha256sum_path}"
 		fail "Unable to find exactly one SHA-256 value for file ${file_name}"
 	fi
 
-	# Check the SHA-256 value using the sha256sum command.
+	# Check the SHA-256 value.
+	local sha256_rc
+
 	pwd=$(pwd)
 	cd "${file_dir}"
-	sha256sum --check "${sha256sum_path}"
-	local sha256sum_rc=$?
+	if command -v sha256sum >/dev/null 2>/dev/null; then
+		sha256sum --check "${sha256sum_path}"
+		sha256_rc=$?
+	elif command -v shasum >/dev/null 2>/dev/null; then
+		shasum --algorithm 256 --check "${sha256sum_path}"
+		sha256_rc=$?
+	fi
 	cd "${pwd}"
 
-	if [ $sha256sum_rc -ne 0 ]; then
+	if [ $sha256_rc -ne 0 ]; then
 		rm "${sha256sum_path}"
 		fail "Failed to verify the SHA-256 value for the file ${file_name}"
 	fi
