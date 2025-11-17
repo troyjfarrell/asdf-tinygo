@@ -28,3 +28,8 @@ dece4264cef3f553636482c2ba15e04ac4e1597dafc092b27c6e3da3acc4ad73 *tinygo0.37.0.l
 edc3476ec69e309f0fd4afc1ec79c34e00a14bc3848a7133ac53f814e72faebd *tinygo0.38.0.linux-amd64.tar.gz
 96db59432bfeb2e7d52c57c10724809adf806ef8b6e31ac841dc1427ad63a187 *tinygo0.38.0.linux-arm64.tar.gz
 2ed31cb9aea3c6d761e5c6be64eeb0f9da1eeb71542afd9e6cf0e98baa2cc4f0 *tinygo0.38.0.linux-arm.tar.gz
+d7889deb624666b11514ba17ac6baef9b0cdf6b51323101383cb868142e05056 *tinygo0.39.0.darwin-amd64.tar.gz
+a5827b8d4a8920682bf350053d7cf86a09be2951b010e99aa6a47d22ef0f5630 *tinygo0.39.0.darwin-arm64.tar.gz
+a119801579ef0a7a4f3ee285f0caf55241eaa9e115154c2028b696770b47a846 *tinygo0.39.0.linux-amd64.tar.gz
+b2ba04d35e1020f9674ed1133de02721952ba45af2b61fa666fb8144570b02b0 *tinygo0.39.0.linux-arm64.tar.gz
+3a9f1ee324b00fbf19a9b4bec37abcad0af1fb7c202a8a00d42d2ea8a86c5be0 *tinygo0.39.0.linux-arm.tar.gz
